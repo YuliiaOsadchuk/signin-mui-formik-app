@@ -1,28 +1,31 @@
-import React, { useState } from "react";
+import React, { useMemo } from "react";
 import {
   MenuItem,
-  Select,
   Box,
   InputLabel,
   Checkbox,
   FormControlLabel,
-  TextField,
-  CssBaseline,
-  Button,
   Avatar,
   Typography,
   Container,
   FormControl,
 } from "@mui/material";
-import { Formik } from "formik";
-import * as Yup from "yup";
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
-import LocalizationProvider from "@mui/lab/LocalizationProvider";
-import DatePicker from "@mui/lab/DatePicker";
+import { TextField, Select } from "formik-mui";
+import { DatePicker } from "formik-mui-lab";
+import { Formik, FormikHelpers, Field } from "formik";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Copyright from "../copyright/Copyright";
-import countriesList from "../../data/countriesList.json";
+import countryList from "react-select-country-list";
+import validationSchema from "./validationSchema";
+import {
+  FlexColumn,
+  FlexRow,
+  FlexBoxShort,
+  FlexCenter,
+  SignInButton,
+  SignInFormControl,
+} from "./SignIn.styles";
 
 const theme = createTheme();
 
@@ -36,12 +39,13 @@ interface FormValues {
   email: string;
   password: string;
   username: string;
-  accountType: number | undefined;
+  accountType: string | undefined;
   country: string | undefined;
+  date: Date;
 }
 
 export default function SignIn() {
-  const [date, setDate] = useState();
+  const optionsCountryList = useMemo(() => countryList().getData(), []);
 
   const initialValues: FormValues = {
     email: "",
@@ -49,31 +53,23 @@ export default function SignIn() {
     username: "",
     accountType: undefined,
     country: undefined,
+    date: new Date(),
   };
 
-  const validationSchema = Yup.object({
-    email: Yup.string().email().required("This field is required"),
-    password: Yup.string()
-      .required("No password provided.")
-      .min(8, "Password is too short - should be 8 chars minimum.")
-      .matches(/[a-zA-Z]/, "Password can only contain Latin letters."),
-    username: Yup.string().required("This field is required"),
-    accountType: Yup.number().defined("This field is required"),
-    country: Yup.string().defined("This field is required"),
-  });
+  const handleSubmitForm = (
+    values: FormValues,
+    actions: FormikHelpers<FormValues>
+  ) => {
+    setTimeout(() => {
+      alert(JSON.stringify(values, null, 2));
+      actions.setSubmitting(false);
+    }, 1000);
+  };
 
   return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
+        <FlexCenter>
           <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
             <LockOutlinedIcon />
           </Avatar>
@@ -83,180 +79,140 @@ export default function SignIn() {
           <Formik
             initialValues={initialValues}
             validationSchema={validationSchema}
-            onSubmit={(values, actions) => {
-              setTimeout(() => {
-                alert(JSON.stringify(values, null, 2));
-                actions.setSubmitting(false);
-              }, 1000);
-            }}
+            onSubmit={handleSubmitForm}
           >
-            {(props) => (
-              <Box
-                component="form"
-                onSubmit={props.handleSubmit}
-                noValidate
-                sx={{ mt: 1, width: "100%" }}
-              >
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                  onChange={props.handleChange}
-                  onBlur={props.handleBlur}
-                  value={props.values.email}
-                />
-
-                {props.errors.email && props.touched.email ? (
-                  <InputLabel error>{props.errors.email}</InputLabel>
-                ) : null}
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="current-password"
-                  onChange={props.handleChange}
-                  onBlur={props.handleBlur}
-                  value={props.values.password}
-                />
-                {props.errors.password && props.touched.password ? (
-                  <InputLabel error>{props.errors.password}</InputLabel>
-                ) : null}
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              submitForm,
+              values,
+            }) => (
+              <FlexColumn>
                 <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                  }}
+                  onSubmit={handleSubmit}
+                  component="form"
+                  noValidate
+                  marginTop="1"
                 >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      width: "50%",
-                    }}
-                  >
-                    <TextField
-                      margin="normal"
-                      required
-                      name="username"
-                      label="Username"
-                      type="text"
-                      id="username"
-                      autoComplete="username"
-                      onChange={props.handleChange}
-                      onBlur={props.handleBlur}
-                      value={props.values.username}
-                    />
-                    {props.errors.username && props.touched.username ? (
-                      <InputLabel error>{props.errors.username}</InputLabel>
-                    ) : null}
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      width: "50%",
-                    }}
-                  >
-                    <FormControl margin="normal" sx={{ marginLeft: 1 }}>
-                      <InputLabel id="account-type-select-label">
-                        Account type
+                  <Field
+                    component={TextField}
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="email"
+                    label="Email Address"
+                    name="email"
+                    autoComplete="email"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.email}
+                  />
+                  <Field
+                    component={TextField}
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="password"
+                    label="Password"
+                    type="password"
+                    id="password"
+                    autoComplete="current-password"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.password}
+                  />
+                  <FlexRow>
+                    <FlexBoxShort>
+                      <Field
+                        component={TextField}
+                        margin="normal"
+                        required
+                        name="username"
+                        label="Username"
+                        type="text"
+                        id="username"
+                        autoComplete="username"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        value={values.username}
+                      />
+                    </FlexBoxShort>
+                    <FlexBoxShort>
+                      <SignInFormControl margin="normal" fullWidth>
+                        <Field
+                          component={Select}
+                          labelId="account-type-select-label"
+                          id="account-type-select"
+                          label="Acount Type"
+                          name="accountType"
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          value={values.accountType}
+                        >
+                          <MenuItem value={ACCOUNT_TYPE.ADMIN}>Admin</MenuItem>
+                          <MenuItem value={ACCOUNT_TYPE.VIEWER}>
+                            Viewer
+                          </MenuItem>
+                          <MenuItem value={ACCOUNT_TYPE.WRITER}>
+                            Writer
+                          </MenuItem>
+                        </Field>
+                      </SignInFormControl>
+                    </FlexBoxShort>
+                  </FlexRow>
+                  <SignInButton variant="contained">
+                    Upload File
+                    <input type="file" hidden />
+                  </SignInButton>
+                  <FlexColumn>
+                    <FormControl margin="normal" fullWidth>
+                      <InputLabel id="country-select-label">
+                        Choose your country
                       </InputLabel>
-                      <Select
-                        labelId="account-type-select-label"
-                        id="account-type-select"
-                        label="Acount Type"
-                        name="accountType"
-                        onChange={props.handleChange}
-                        onBlur={props.handleBlur}
-                        value={props.values.accountType}
+                      <Field
+                        component={Select}
+                        labelId="countries-list-select-label"
+                        id="countries-list-select"
+                        label="Choose your country"
+                        name="country"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        value={values.country}
                       >
-                        <MenuItem value={ACCOUNT_TYPE.ADMIN}>Admin</MenuItem>
-                        <MenuItem value={ACCOUNT_TYPE.VIEWER}>Viewer</MenuItem>
-                        <MenuItem value={ACCOUNT_TYPE.WRITER}>Writer</MenuItem>
-                      </Select>
+                        {optionsCountryList.map((country) => (
+                          <MenuItem key={country.label} value={country.label}>
+                            {country.label}
+                          </MenuItem>
+                        ))}
+                      </Field>
                     </FormControl>
-                    {props.errors.accountType && props.touched.accountType ? (
-                      <InputLabel error>{props.errors.accountType}</InputLabel>
-                    ) : null}
-                  </Box>
-                </Box>
-                <Button
-                  sx={{ marginTop: 2 }}
-                  variant="contained"
-                  component="label"
-                >
-                  Upload File
-                  <input type="file" hidden />
-                </Button>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    width: "50%",
-                  }}
-                >
-                  <FormControl margin="normal" fullWidth>
-                    <InputLabel id="country-select-label">
-                      Choose your country
-                    </InputLabel>
-                    <Select
-                      labelId="countries-list-select-label"
-                      id="countries-list-select"
-                      label="Choose your country"
-                      name="country"
-                      onChange={props.handleChange}
-                      onBlur={props.handleBlur}
-                      value={props.values.country}
-                    >
-                      {countriesList.map((country) => (
-                        <MenuItem key={country.name} value={country.name}>
-                          {country.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                  {props.errors.country && props.touched.country ? (
-                    <InputLabel error>{props.errors.country}</InputLabel>
-                  ) : null}
-                </Box>
-                <Box sx={{ width: "100%", marginTop: 2 }}>
-                  <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    <DatePicker
-                      label="License Subscription Start"
-                      value={date}
-                      onChange={(newValue: any) => {
-                        setDate(newValue);
-                      }}
-                      renderInput={(params) => <TextField {...params} />}
+                  </FlexColumn>
+                  <FlexColumn>
+                    <Field
+                      component={DatePicker}
+                      name="date"
+                      label="Date Time"
                     />
-                  </LocalizationProvider>
+                  </FlexColumn>
+                  <SignInButton
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    onClick={submitForm}
+                  >
+                    Sign In
+                  </SignInButton>
+                  <FormControlLabel
+                    control={<Checkbox value="remember" color="primary" />}
+                    label="Remember me"
+                  />
                 </Box>
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  sx={{ mt: 3, mb: 2 }}
-                >
-                  Sign In
-                </Button>
-                <FormControlLabel
-                  control={<Checkbox value="remember" color="primary" />}
-                  label="Remember me"
-                />
-              </Box>
+              </FlexColumn>
             )}
           </Formik>
-        </Box>
-        <Copyright sx={{ mt: 8, mb: 4 }} />
+        </FlexCenter>
+        <Copyright />
       </Container>
     </ThemeProvider>
   );
