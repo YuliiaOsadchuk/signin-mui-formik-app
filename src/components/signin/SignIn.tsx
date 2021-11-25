@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import {
   MenuItem,
   Box,
-  InputLabel,
   Checkbox,
   FormControlLabel,
   Avatar,
@@ -167,9 +166,6 @@ export default function SignIn() {
                   </SignInButton>
                   <FlexColumn>
                     <FormControl margin="normal" fullWidth>
-                      <InputLabel id="country-select-label">
-                        Choose your country
-                      </InputLabel>
                       <Field
                         component={Select}
                         labelId="countries-list-select-label"
