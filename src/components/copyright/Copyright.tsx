@@ -1,16 +1,21 @@
 import React from "react";
 import Link from "@mui/material/Link";
-import Typography from "@mui/material/Typography";
+import { SignInTypography } from "./Copyright.styles";
 
 const Copyright = (props: any) => (
-  <Typography variant="body2" color="text.secondary" align="center" {...props}>
+  <SignInTypography
+    variant="body2"
+    color="text.secondary"
+    align="center"
+    {...props}
+  >
     {"Copyright © "}
     <Link color="inherit" href="https://lionwood.software/">
       Lionwood.software
-    </Link>{" "}
+    </Link>
     {new Date().getFullYear()}
     {"."}
-  </Typography>
+  </SignInTypography>
 );
 
 export default Copyright;
