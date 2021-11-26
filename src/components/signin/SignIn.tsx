@@ -88,12 +88,7 @@ export default function SignIn() {
               values,
             }) => (
               <FlexColumn>
-                <Box
-                  onSubmit={handleSubmit}
-                  component="form"
-                  noValidate
-                  marginTop="1"
-                >
+                <Box onSubmit={handleSubmit} component="form" marginTop="1">
                   <Field
                     component={TextField}
                     margin="normal"
